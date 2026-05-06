@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #fff;
+    color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.contenedor {
+    width: 380px;
+    background: #fff;
+    border: 2px solid #000000;
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: none;
+}
+
+h1 {
+    color: #000;
+}
+
+.qr {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    background: #fff;
+}
+
+#qrcode {
+    filter: grayscale(100%) contrast(200%);
+}
+
+/* impresión */
+@media print {
+    body, .contenedor, .qr {
+        background: #000 !important;
+        color: #000 !important;
+        box-shadow: none !important;
+    }
+
+    @page {
+        margin: 0;
+        size: A4;
+    }
+}
+.contenedor {
+    width: 380px;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+}
+.qr {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+</style>
+</head>
+
+<body>
+    <div class="contenedor">
+    <h1>JAVIER CAÑO PÉREZ</h1>
+
+    <div class="qr">
+        <div id="qrcode"></div>
+    </div>
+
+
+    </div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+new QRCode(document.getElementById("qrcode"), {
+    text: "https://javier-cano-hub.up.railway.app/",
+    width: 300,
+    height: 300,
+    correctLevel: QRCode.CorrectLevel.H
+});
+</script>
+
+</body>
+</html>

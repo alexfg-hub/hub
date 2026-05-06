@@ -1,0 +1,25 @@
+{
+  "titulo": "",
+  "links": [
+    {
+      "nombre": "Linkedin",
+      "link": "",
+      "img": "https://res.cloudinary.com/dsisxhnvm/image/upload/v1777966043/products/wi2wmrdnit6krrnfocuc.png"
+    },
+    {
+      "nombre": "Curriculum",
+      "link": "",
+      "img": "https://res.cloudinary.com/dsisxhnvm/image/upload/v1777966074/products/u5d8spmzw9scn5q9gbgv.png"
+    },
+    {
+      "nombre": "Elevator pitch - VIDEO",
+      "link": "",
+      "img": "https://res.cloudinary.com/dsisxhnvm/image/upload/v1777966016/products/evojj1k5ms6m0x5ivmcq.png"
+    },
+    {
+      "nombre": "Elevator pitch - GUIÓ",
+      "link": "",
+      "img": "https://res.cloudinary.com/dsisxhnvm/image/upload/v1777968016/products/dxwje6vtepfd26kt7pqg.png"
+    }
+  ]
+}
