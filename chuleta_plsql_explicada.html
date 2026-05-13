@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>Chuleta PL/SQL</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Barlow+Condensed:wght@500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: #0d0d0d;
+    color: #e8e8e8;
+    font-size: 10.5px;
+    line-height: 1.45;
+    padding: 10px;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #f0c040;
+    text-align: center;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #f0c040;
+    padding-bottom: 4px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .card {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 8px 10px;
+    break-inside: avoid;
+  }
+
+  .card.span2 { grid-column: span 2; }
+  .card.span3 { grid-column: span 3; }
+
+  h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid;
+  }
+
+  .blocs h2     { color: #4fc3f7; border-color: #4fc3f7; }
+  .vars h2      { color: #80cbc4; border-color: #80cbc4; }
+  .for h2       { color: #a5d6a7; border-color: #a5d6a7; }
+  .while h2     { color: #a5d6a7; border-color: #a5d6a7; }
+  .if h2        { color: #a5d6a7; border-color: #a5d6a7; }
+  .cursor-imp h2 { color: #ffcc80; border-color: #ffcc80; }
+  .cursor-exp h2 { color: #f48fb1; border-color: #f48fb1; }
+  .records h2   { color: #ce93d8; border-color: #ce93d8; }
+  .for-cursor h2 { color: #f48fb1; border-color: #f48fb1; }
+  .cursor-params h2 { color: #f48fb1; border-color: #f48fb1; }
+  .proc h2      { color: #80deea; border-color: #80deea; }
+  .func h2      { color: #b39ddb; border-color: #b39ddb; }
+  .trigger h2   { color: #ef9a9a; border-color: #ef9a9a; }
+  .trigger-row h2 { color: #ef9a9a; border-color: #ef9a9a; }
+
+  pre {
+    background: #111;
+    border-left: 3px solid #333;
+    padding: 6px 8px;
+    border-radius: 2px;
+    white-space: pre;
+    overflow-x: auto;
+    font-size: 9.8px;
+    line-height: 1.5;
+    color: #ddd;
+  }
+
+  .kw   { color: #4fc3f7; font-weight: bold; }  /* keywords */
+  .opt  { color: #888; }                          /* optional parts */
+  .val  { color: #a5d6a7; }                       /* values/names */
+  .cmt  { color: #555; font-style: italic; }      /* comments */
+  .attr { color: #ffcc80; }                       /* attributes */
+  .ret  { color: #b39ddb; }                       /* RETURN */
+  .old  { color: #f48fb1; }                       /* :OLD :NEW */
+
+  .note {
+    margin-top: 5px;
+    font-size: 9px;
+    color: #888;
+    line-height: 1.4;
+  }
+  .note span { color: #ffcc80; }
+
+  .exp {
+    margin-top: 6px;
+    background: #0a0a0a;
+    border-left: 3px solid #444;
+    border-radius: 2px;
+    padding: 5px 8px;
+    font-size: 9px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+  .exp strong {
+    color: #f0c040;
+    font-weight: bold;
+  }
+  .exp .java {
+    color: #80cbc4;
+    font-style: italic;
+  }
+  .exp-toggle {
+    margin-top: 5px;
+    background: none;
+    border: 1px solid #333;
+    border-radius: 3px;
+    color: #666;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    padding: 2px 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+  .exp-toggle:hover {
+    border-color: #f0c040;
+    color: #f0c040;
+  }
+  .exp.hidden { display: none; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin-top: 4px; }
+  th { color: #888; font-weight: normal; text-align: left; padding: 2px 4px; border-bottom: 1px solid #2a2a2a; }
+  td { padding: 2px 4px; color: #ddd; }
+  tr:hover td { background: #1e1e1e; }
+</style>
+<script>
+  function toggleExp(btn) {
+    const exp = btn.nextElementSibling;
+    const hidden = exp.classList.toggle('hidden');
+    btn.textContent = hidden ? '▸ explicació' : '▾ tancar';
+  }
+</script>
+</head>
+<body>
+
+<h1>⚡ Chuleta PL/SQL — Sintaxis</h1>
+
+<div class="grid">
+
+  <!-- BLOC ANÒNIM -->
+  <div class="card blocs">
+    <h2>Bloc Anònim</h2>
+<pre><span class="opt">[</span><span class="kw">DECLARE</span>
+  <span class="val">nom_var</span> <span class="opt">[CONSTANT]</span> <span class="val">tipus</span> <span class="opt">[NOT NULL]</span>
+          <span class="opt">[:= expr | DEFAULT expr];</span><span class="opt">]</span>
+<span class="kw">BEGIN</span>
+  sentències;
+  <span class="opt">[</span><span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> <span class="val">nom_excepcio</span> <span class="kw">THEN</span>
+      accions;<span class="opt">]</span>
+<span class="kw">END</span>;</pre>
+    <div class="note">
+      <span>%TYPE</span>: <code>v_sal taula.columna%TYPE;</code><br>
+      DECLARE i EXCEPTION són opcionals
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Estructura base de PL/SQL.</strong> Té tres parts:<br>
+      · <strong>DECLARE</strong> (opcional): on declares variables i cursors.<br>
+      · <strong>BEGIN</strong>: el codi que s'executa.<br>
+      · <strong>EXCEPTION</strong> (opcional): captura errors.<br>
+      <span class="java">→ Java: equivalent al bloc try { } catch { }</span>
+    </div>
+  </div>
+
+  <!-- VARIABLES -->
+  <div class="card vars">
+    <h2>Variables</h2>
+<pre><span class="cmt">-- Declaració</span>
+<span class="val">nom_var</span> <span class="opt">[CONSTANT]</span> <span class="val">tipus</span> <span class="opt">[NOT NULL]</span>
+        <span class="opt">[:= expr | DEFAULT expr];</span>
+
+<span class="cmt">-- Assignació (dins BEGIN)</span>
+<span class="val">nom_var</span> := expressió;
+
+<span class="cmt">-- Des de SELECT</span>
+<span class="kw">SELECT</span> col <span class="kw">INTO</span> <span class="val">nom_var</span>
+<span class="kw">FROM</span> taula <span class="kw">WHERE</span> ...;</pre>
+    <div class="note">
+      Prefixes conv: <span>v_</span> variables · <span>c_</span> constants · <span>p_</span> paràmetres
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Tres maneres d'assignar valor:</strong><br>
+      · <strong>:=</strong> assignació directa (com <span class="java">=</span> a Java).<br>
+      · <strong>DEFAULT</strong> valor per defecte en la declaració.<br>
+      · <strong>SELECT INTO</strong> carrega el resultat d'una query. Si no retorna res → <strong>NO_DATA_FOUND</strong>. Si retorna >1 fila → <strong>TOO_MANY_ROWS</strong>.<br>
+      · <strong>%TYPE</strong> hereta el tipus d'una columna de taula automàticament.
+    </div>
+  </div>
+
+  <!-- IF -->
+  <div class="card if">
+    <h2>IF / ELSIF / ELSE</h2>
+<pre><span class="kw">IF</span> condició <span class="kw">THEN</span>
+  sentències;
+<span class="opt">[</span><span class="kw">ELSIF</span> condició <span class="kw">THEN</span>
+  sentències;<span class="opt">]</span>
+<span class="opt">[</span><span class="kw">ELSE</span>
+  sentències;<span class="opt">]</span>
+<span class="kw">END IF</span>;</pre>
+    <div class="note"><span>NULL</span> en condicions → avalua a NULL → tractat com FALSE</div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Condicional estàndard.</strong> Igual que Java però:<br>
+      · S'escriu <strong>ELSIF</strong> (sense segona E).<br>
+      · Es tanca amb <strong>END IF</strong>.<br>
+      · Si la condició és <strong>NULL</strong>, es tracta com FALSE (compte amb variables no inicialitzades).<br>
+      <span class="java">→ Java: if (...) { } else if (...) { } else { }</span>
+    </div>
+  </div>
+
+  <!-- FOR -->
+  <div class="card for">
+    <h2>Bucle FOR (numèric)</h2>
+<pre><span class="kw">FOR</span> <span class="val">variable</span> <span class="kw">IN</span> <span class="opt">[REVERSE]</span> <span class="val">inici</span>..<span class="val">final</span> <span class="kw">LOOP</span>
+  sentències;
+<span class="kw">END LOOP</span>;</pre>
+    <div class="note">
+      · La variable es declara implícitament (INTEGER)<br>
+      · Àmbit: només dins el FOR<br>
+      · <span>REVERSE</span>: itera de <i>final</i> a <i>inici</i><br>
+      · <i>inici</i> i <i>final</i> no poden ser NULL
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Bucle numèric amb rang fix.</strong><br>
+      · La variable del bucle <strong>no cal declarar-la</strong>, es crea automàticament com INTEGER.<br>
+      · Amb <strong>REVERSE</strong> itera de major a menor.<br>
+      · Els límits no poden ser NULL (llançaria error en temps d'execució).<br>
+      <span class="java">→ Java: for (int i = inici; i &lt;= final; i++) { }</span>
+    </div>
+  </div>
+
+  <!-- FOR LOOP SIMPLE -->
+  <div class="card while">
+    <h2>Bucle FOR (sense rang fix)</h2>
+<pre><span class="kw">FOR</span> <span class="val">variable</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> ... <span class="kw">FROM</span> taula) <span class="kw">LOOP</span>
+  sentències;
+<span class="kw">END LOOP</span>;
+
+<span class="cmt">-- O amb cursor declarat:</span>
+<span class="kw">FOR</span> <span class="val">v_reg</span> <span class="kw">IN</span> <span class="val">cur_nom</span> <span class="kw">LOOP</span>
+  sentències;
+<span class="kw">END LOOP</span>;</pre>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Alternativa al WHILE per recórrer cursors.</strong> OPEN, FETCH i CLOSE són automàtics.<br>
+      · El registre es declara implícitament (no cal declarar-lo).<br>
+      · Quan s'acaben les files, el bucle para sol.<br>
+      · És la forma <strong>recomanada</strong> quan no necessites control manual del cursor.<br>
+      <span class="java">→ Java: for (Objecte o : llista) { }</span>
+    </div>
+  </div>
+
+  <!-- CURSOR IMPLÍCIT -->
+  <div class="card cursor-imp">
+    <h2>Cursor Implícit (SQL%)</h2>
+    <table>
+      <tr><th>Atribut</th><th>Descripció</th></tr>
+      <tr><td><span class="attr">SQL%FOUND</span></td><td>TRUE si l'última sentència ha afectat ≥1 fila</td></tr>
+      <tr><td><span class="attr">SQL%NOTFOUND</span></td><td>TRUE si no ha afectat cap fila</td></tr>
+      <tr><td><span class="attr">SQL%ROWCOUNT</span></td><td>Nº de files afectades</td></tr>
+    </table>
+    <div class="note">S'activa automàticament amb INSERT/UPDATE/DELETE/SELECT INTO</div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Oracle crea un cursor automàtic</strong> per cada DML executat.<br>
+      · <strong>SQL%FOUND</strong>: TRUE si ≥1 fila afectada.<br>
+      · <strong>SQL%NOTFOUND</strong>: TRUE si cap fila afectada (útil per detectar UPDATE que no canvia res).<br>
+      · <strong>SQL%ROWCOUNT</strong>: quantes files han estat afectades.<br>
+      Es consulta just <strong>després</strong> de la sentència DML, abans de qualsevol altra.
+    </div>
+  </div>
+
+  <!-- CURSOR EXPLÍCIT -->
+  <div class="card cursor-exp span2">
+    <h2>Cursor Explícit — OPEN / FETCH / CLOSE</h2>
+<pre><span class="kw">DECLARE</span>
+  <span class="cmt">-- 1. Declarar el cursor</span>
+  <span class="kw">CURSOR</span> <span class="val">cur_nom</span> <span class="kw">IS</span>
+    sentència_SELECT;
+  <span class="cmt">-- Variables per guardar les dades</span>
+  <span class="val">v_camp1</span> taula.columna%<span class="kw">TYPE</span>;
+
+<span class="kw">BEGIN</span>
+  <span class="cmt">-- 2. Obrir (executa el SELECT)</span>
+  <span class="kw">OPEN</span> <span class="val">cur_nom</span>;
+  <span class="cmt">-- 3. Llegir files amb FOR</span>
+  <span class="kw">FOR</span> <span class="val">v_reg</span> <span class="kw">IN</span> <span class="val">cur_nom</span> <span class="kw">LOOP</span>
+    sentències;
+  <span class="kw">END LOOP</span>;
+  <span class="cmt">-- 4. Tancar el cursor</span>
+  <span class="kw">CLOSE</span> <span class="val">cur_nom</span>;
+<span class="kw">END</span>;</pre>
+    <table style="margin-top:6px">
+      <tr><th>Atribut</th><th></th></tr>
+      <tr><td><span class="attr">%FOUND</span></td><td>TRUE si el darrer FETCH ha obtingut fila</td></tr>
+      <tr><td><span class="attr">%NOTFOUND</span></td><td>TRUE si el darrer FETCH NO ha obtingut fila</td></tr>
+      <tr><td><span class="attr">%ROWCOUNT</span></td><td>Nº de files llegides fins ara</td></tr>
+      <tr><td><span class="attr">%ISOPEN</span></td><td>TRUE si el cursor està obert</td></tr>
+    </table>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Quan una query retorna múltiples files</strong>, cal un cursor explícit. Cicle de vida obligatori:<br>
+      1. <strong>DECLARE CURSOR IS SELECT</strong>: defineix la query (no s'executa encara).<br>
+      2. <strong>OPEN</strong>: executa el SELECT i posiciona el punter abans de la 1a fila.<br>
+      3. <strong>FETCH INTO</strong>: llegeix una fila i avança el punter.<br>
+      4. <strong>FOR..IN cursor LOOP</strong>: itera automàticament fins que no hi hagi més files.<br>
+      5. <strong>CLOSE</strong>: allibera recursos. Sempre s'ha de tancar.<br>
+      <span class="java">→ Java: com iterar un ResultSet de JDBC</span>
+    </div>
+  </div>
+
+  <!-- RECORDS %ROWTYPE -->
+  <div class="card records">
+    <h2>Records — %ROWTYPE</h2>
+<pre><span class="kw">DECLARE</span>
+  <span class="kw">CURSOR</span> <span class="val">cur_nom</span> <span class="kw">IS</span> SELECT ...;
+  <span class="cmt">-- Registre associat al cursor</span>
+  <span class="val">v_registre</span> <span class="val">cur_nom</span>%<span class="kw">ROWTYPE</span>;
+
+<span class="kw">BEGIN</span>
+  <span class="kw">OPEN</span> <span class="val">cur_nom</span>;
+  <span class="kw">FOR</span> <span class="val">v_registre</span> <span class="kw">IN</span> <span class="val">cur_nom</span> <span class="kw">LOOP</span>
+    <span class="cmt">-- Accés als camps</span>
+    <span class="val">v_registre</span>.<span class="val">nom_camp</span>;
+  <span class="kw">END LOOP</span>;
+  <span class="kw">CLOSE</span> <span class="val">cur_nom</span>;
+<span class="kw">END</span>;</pre>
+    <div class="note">
+      <span>%ROWTYPE</span> crea un registre amb els mateixos camps que el SELECT del cursor<br>
+      Accés: <code>nom_registre.nom_camp</code>
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>En lloc de declarar una variable per cada columna</strong>, %ROWTYPE crea un "objecte" amb tots els camps de cop.<br>
+      · S'adapta automàticament a l'estructura del SELECT del cursor.<br>
+      · Accés per nom de camp: <strong>v_registre.nom_camp</strong>.<br>
+      <span class="java">→ Java: com un DTO/record generat automàticament a partir del ResultSet</span>
+    </div>
+  </div>
+
+  <!-- FOR IN CURSOR -->
+  <div class="card for-cursor">
+    <h2>FOR..IN Cursor (simplificat)</h2>
+<pre><span class="cmt">-- Amb cursor declarat:</span>
+<span class="kw">DECLARE</span>
+  <span class="kw">CURSOR</span> <span class="val">cur_nom</span> <span class="kw">IS</span> SELECT ...;
+<span class="kw">BEGIN</span>
+  <span class="kw">FOR</span> <span class="val">v_reg</span> <span class="kw">IN</span> <span class="val">cur_nom</span> <span class="kw">LOOP</span>
+    <span class="val">v_reg</span>.<span class="val">nom_camp</span>;
+  <span class="kw">END LOOP</span>;
+<span class="kw">END</span>;
+
+<span class="cmt">-- Sense declarar cursor (subconsulta):</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">FOR</span> <span class="val">v_reg</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> ... <span class="kw">FROM</span> taula <span class="kw">WHERE</span> ...) <span class="kw">LOOP</span>
+    <span class="val">v_reg</span>.<span class="val">nom_camp</span>;
+  <span class="kw">END LOOP</span>;
+<span class="kw">END</span>;</pre>
+    <div class="note">
+      OPEN, FETCH i CLOSE <span>automàtics</span> · el registre es declara implícitament · àmbit: dins el FOR
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>La forma més còmoda de recórrer un cursor.</strong><br>
+      · <strong>OPEN, FETCH i CLOSE automàtics</strong>: Oracle ho gestiona tot sol.<br>
+      · El registre (v_reg) es declara implícitament amb %ROWTYPE.<br>
+      · Pots passar la query directament sense declarar el cursor (subconsulta).<br>
+      · Quan s'acaben les files, el bucle para sol.<br>
+      <span class="java">→ Java: com un for-each sobre una llista de DTOs</span>
+    </div>
+  </div>
+
+  <!-- CURSOR AMB PARÀMETRES -->
+  <div class="card cursor-params">
+    <h2>Cursor amb Paràmetres</h2>
+<pre><span class="kw">DECLARE</span>
+  <span class="kw">CURSOR</span> <span class="val">cur_nom</span>(<span class="val">p_param</span> <span class="val">tipus</span>) <span class="kw">IS</span>
+    <span class="kw">SELECT</span> ... <span class="kw">FROM</span> taula
+    <span class="kw">WHERE</span> columna = <span class="val">p_param</span>;
+<span class="kw">BEGIN</span>
+  <span class="cmt">-- Obrir donant valor al paràmetre:</span>
+  <span class="kw">OPEN</span> <span class="val">cur_nom</span>(<span class="val">valor</span>);
+  <span class="cmt">-- O amb FOR:</span>
+  <span class="kw">FOR</span> <span class="val">v_reg</span> <span class="kw">IN</span> <span class="val">cur_nom</span>(<span class="val">valor</span>) <span class="kw">LOOP</span>
+    ...
+  <span class="kw">END LOOP</span>;
+<span class="kw">END</span>;</pre>
+    <div class="note">
+      · Només paràmetres d'<span>entrada</span> (IN)<br>
+      · Tipus sense mida: <code>NUMBER</code>, no <code>NUMBER(6)</code><br>
+      · Vàlids <span>només</span> dins el cursor
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Cursor reutilitzable amb filtre dinàmic.</strong><br>
+      · Es declara amb paràmetres i s'obre passant-li valors concrets.<br>
+      · Només admet paràmetres <strong>IN</strong> (entrada).<br>
+      · Els tipus <strong>no porten mida</strong>: NUMBER sí, NUMBER(6) no.<br>
+      · El paràmetre és visible només dins la query del cursor.<br>
+      <span class="java">→ Java: com un PreparedStatement amb paràmetres</span>
+    </div>
+  </div>
+
+  <!-- PROCEDIMENT -->
+  <div class="card proc span2">
+    <h2>Procediment</h2>
+<pre><span class="kw">CREATE</span> <span class="opt">[OR REPLACE]</span> <span class="kw">PROCEDURE</span> <span class="val">nom_proc</span>
+  <span class="opt">([</span><span class="val">p_param1</span> <span class="opt">[</span><span class="kw">IN</span><span class="opt">|</span><span class="kw">OUT</span><span class="opt">|</span><span class="kw">IN OUT</span><span class="opt">]</span> <span class="val">tipus</span><span class="opt">,</span>
+    <span class="val">p_param2</span> <span class="val">tipus</span> <span class="opt">:= valor_defecte,</span>
+    ...]<span class="opt">)</span>
+<span class="kw">IS</span><span class="opt">|</span><span class="kw">AS</span>
+  <span class="opt">[declaració variables locals;]</span>
+<span class="kw">BEGIN</span>
+  sentències;
+  <span class="opt">[</span><span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> <span class="val">nom_excepcio</span> <span class="kw">THEN</span> accions;<span class="opt">]</span>
+<span class="kw">END</span> <span class="opt">[nom_proc]</span>;</pre>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px;">
+      <div>
+        <div class="note" style="color:#80deea; font-size:9.5px; font-weight:bold; margin-bottom:3px;">MODES DE PARÀMETRES</div>
+        <table>
+          <tr><th>Mode</th><th>Descripció</th></tr>
+          <tr><td><span class="kw">IN</span></td><td>Entrada (per defecte). Read-only</td></tr>
+          <tr><td><span class="kw">OUT</span></td><td>Sortida. Retorna valor</td></tr>
+          <tr><td><span class="kw">IN OUT</span></td><td>Entrada i sortida</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="note" style="color:#80deea; font-size:9.5px; font-weight:bold; margin-bottom:3px;">CRIDAR PROCEDIMENT</div>
+<pre style="font-size:9px"><span class="cmt">-- Des de bloc anònim:</span>
+<span class="kw">BEGIN</span>
+  <span class="val">nom_proc</span><span class="opt">([params])</span>;
+<span class="kw">END</span>;
+
+<span class="cmt">-- Amb OUT: cal variable</span>
+<span class="kw">DECLARE</span> <span class="val">v_res</span> <span class="val">NUMBER</span>;
+<span class="kw">BEGIN</span>
+  <span class="val">nom_proc</span>(p1, <span class="val">v_res</span>);
+<span class="kw">END</span>;</pre>
+      </div>
+    </div>
+    <div class="note">· No es pot cridar des d'una sentència SQL · OR REPLACE sobreescriu la versió antiga</div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Subprograma que executa accions però no retorna valor directament.</strong><br>
+      · Modes de paràmetres: <strong>IN</strong> (read-only, per defecte), <strong>OUT</strong> (retorna valor), <strong>IN OUT</strong> (entrada i sortida).<br>
+      · Per rebre un OUT cal declarar una variable i passar-la.<br>
+      · <strong>OR REPLACE</strong>: sobreescriu sense haver d'esborrar primer.<br>
+      · No es pot cridar des d'una sentència SQL, només des de blocs PL/SQL.<br>
+      <span class="java">→ Java: mètode void amb paràmetres de sortida simulats per referència</span>
+    </div>
+  </div>
+
+  <!-- FUNCIÓ -->
+  <div class="card func">
+    <h2>Funció</h2>
+<pre><span class="kw">CREATE</span> <span class="opt">[OR REPLACE]</span> <span class="kw">FUNCTION</span> <span class="val">nom_func</span>
+  <span class="opt">([</span><span class="val">p_param1</span> <span class="opt">[IN]</span> <span class="val">tipus</span><span class="opt">,</span>
+    ...]<span class="opt">)</span>
+<span class="ret">RETURN</span> <span class="val">tipus_retorn</span>
+<span class="kw">IS</span><span class="opt">|</span><span class="kw">AS</span>
+  <span class="opt">[declaració variables locals;]</span>
+<span class="kw">BEGIN</span>
+  sentències;
+  <span class="ret">RETURN</span> <span class="val">expressió</span>;
+  <span class="opt">[</span><span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> <span class="val">nom_exc</span> <span class="kw">THEN</span>
+      <span class="ret">RETURN</span> <span class="val">valor</span>;<span class="opt">]</span>
+<span class="kw">END</span> <span class="opt">[nom_func]</span>;</pre>
+    <div class="note">
+      · Sempre ha de tenir RETURN<br>
+      · Es pot cridar des de <span>SQL</span><br>
+      · Cridar: <code>v_x := nom_func(params);</code><br>
+      · Tractar sempre <span>NO_DATA_FOUND</span>
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Com un procediment però retorna un valor amb RETURN.</strong><br>
+      · Ha de tenir <strong>sempre</strong> almenys un RETURN al cos.<br>
+      · A diferència del procediment, <strong>es pot cridar des de SQL</strong>.<br>
+      · Els paràmetres solen ser IN (OUT i IN OUT estan desaconsellats en funcions).<br>
+      · Tractar sempre NO_DATA_FOUND si fa SELECT INTO internament.<br>
+      <span class="java">→ Java: mètode amb tipus de retorn no void</span>
+    </div>
+  </div>
+
+  <!-- TRIGGER SENTÈNCIA -->
+  <div class="card trigger span2">
+    <h2>Trigger de Sentència (Statement-level)</h2>
+<pre><span class="kw">CREATE</span> <span class="opt">[OR REPLACE]</span> <span class="kw">TRIGGER</span> <span class="val">nom_trigger</span>
+<span class="val">TIMING</span>  <span class="val">EVENT1</span> <span class="opt">[OR EVENT2 OR EVENT3]</span>  <span class="kw">ON</span> <span class="val">nom_taula</span>
+<span class="opt">[DECLARE declaracions;]</span>
+<span class="kw">BEGIN</span>
+  sentències;
+<span class="kw">END</span> <span class="opt">[nom_trigger]</span>;</pre>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px;">
+      <div>
+        <table>
+          <tr><th>TIMING</th><th></th></tr>
+          <tr><td><span class="kw">BEFORE</span></td><td>Executa el trigger <i>abans</i> de la sentència DML</td></tr>
+          <tr><td><span class="kw">AFTER</span></td><td>Executa el trigger <i>després</i> de la sentència DML</td></tr>
+          <tr><td><span class="kw">INSTEAD OF</span></td><td>Executa el trigger <i>en lloc</i> de la sentència DML</td></tr>
+        </table>
+      </div>
+      <div>
+        <table>
+          <tr><th>EVENT</th><th></th></tr>
+          <tr><td><span class="kw">INSERT</span></td><td>Al insertar una fila</td></tr>
+          <tr><td><span class="kw">UPDATE <span class="opt">[OF col]</span></span></td><td>Al actualitzar</td></tr>
+          <tr><td><span class="kw">DELETE</span></td><td>Al eliminar una fila</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="note">
+      · S'executa <span>1 cop</span> per sentència (independentment de quantes files afecti)<br>
+      · Predicats condicionals: <span>INSERTING</span>, <span>UPDATING</span>, <span>DELETING</span> → BOOLEAN TRUE/FALSE<br>
+      · <code>UPDATING('COLUMNA')</code> comprova si s'actualitza una columna concreta<br>
+      · No es permeten: <span>COMMIT, SAVEPOINT, ROLLBACK</span> dins el cos
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Codi que s'executa automàticament en resposta a un INSERT/UPDATE/DELETE.</strong><br>
+      · <strong>S'executa 1 sola vegada</strong> per sentència, independentment de quantes files afecti.<br>
+      · <strong>BEFORE</strong>: s'executa abans del DML (útil per validar). <strong>AFTER</strong>: després (útil per auditoria).<br>
+      · Usa INSERTING/UPDATING/DELETING per saber quin event l'ha disparat.<br>
+      · <strong>No es pot fer COMMIT, SAVEPOINT ni ROLLBACK</strong> dins el cos del trigger.<br>
+      <span class="java">→ Java: com un @PrePersist / @PostUpdate de JPA</span>
+    </div>
+  </div>
+
+  <!-- TRIGGER DE FILA -->
+  <div class="card trigger-row">
+    <h2>Trigger de Fila (ROW) + :OLD / :NEW</h2>
+<pre><span class="kw">CREATE</span> <span class="opt">[OR REPLACE]</span> <span class="kw">TRIGGER</span> <span class="val">nom_trigger</span>
+<span class="val">TIMING</span>  <span class="val">EVENT</span>  <span class="kw">ON</span> <span class="val">nom_taula</span>
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+  <span class="cmt">-- Accés als valors antics i nous:</span>
+  <span class="old">:OLD</span>.<span class="val">nom_columna</span>  <span class="cmt">-- valor abans del canvi</span>
+  <span class="old">:NEW</span>.<span class="val">nom_columna</span>  <span class="cmt">-- valor després del canvi</span>
+<span class="kw">END</span>;</pre>
+
+    <table style="margin-top:6px">
+      <tr><th>Sentència</th><th><span class="old">:OLD</span></th><th><span class="old">:NEW</span></th></tr>
+      <tr><td><span class="kw">INSERT</span></td><td>NULL</td><td>nou valor</td></tr>
+      <tr><td><span class="kw">UPDATE</span></td><td>valor antic</td><td>valor nou</td></tr>
+      <tr><td><span class="kw">DELETE</span></td><td>valor antic</td><td>NULL</td></tr>
+    </table>
+    <div class="note">
+      · <span>FOR EACH ROW</span> → s'executa 1 cop per cada fila afectada<br>
+      · Sense FOR EACH ROW → trigger de sentència (per defecte)
+    </div>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Com el trigger de sentència però s'executa una vegada per cada fila afectada.</strong><br>
+      · <strong>:OLD</strong> conté els valors abans del canvi. <strong>:NEW</strong> els valors després.<br>
+      · En un INSERT: :OLD és NULL (no hi havia res). En un DELETE: :NEW és NULL (ja no hi serà).<br>
+      · Pots modificar :NEW en un BEFORE trigger per canviar el valor que es guardarà.<br>
+      · Si un UPDATE afecta 1000 files, el trigger s'executa 1000 vegades.<br>
+      <span class="java">→ Java: com un listener que rep l'entitat abans i després de cada canvi</span>
+    </div>
+  </div>
+
+  <!-- EXCEPCIONS -->
+  <div class="card blocs">
+    <h2>Excepcions comuns</h2>
+    <table>
+      <tr><th>Excepció</th><th>Quan</th></tr>
+      <tr><td><span class="attr">NO_DATA_FOUND</span></td><td>SELECT INTO no retorna cap fila</td></tr>
+      <tr><td><span class="attr">TOO_MANY_ROWS</span></td><td>SELECT INTO retorna >1 fila</td></tr>
+    </table>
+<pre style="margin-top:5px"><span class="kw">EXCEPTION</span>
+  <span class="kw">WHEN</span> <span class="attr">NO_DATA_FOUND</span> <span class="kw">THEN</span> accions;
+  <span class="kw">WHEN</span> <span class="attr">TOO_MANY_ROWS</span> <span class="kw">THEN</span> accions;
+  <span class="kw">WHEN OTHERS THEN</span> accions;</pre>
+    <button class="exp-toggle" onclick="toggleExp(this)">▸ explicació</button>
+    <div class="exp hidden">
+      <strong>Captura errors al final del bloc BEGIN.</strong><br>
+      · <strong>NO_DATA_FOUND</strong>: SELECT INTO no ha trobat cap fila.<br>
+      · <strong>TOO_MANY_ROWS</strong>: SELECT INTO ha retornat més d'una fila (usa cursor si en vols moltes).<br>
+      · <strong>WHEN OTHERS</strong>: captura qualsevol excepció no controlada, sempre al final.<br>
+      · Dins el handler pots usar <strong>SQLERRM</strong> per obtenir el missatge d'error.<br>
+      <span class="java">→ Java: catch (NoResultException e) / catch (NonUniqueResultException e) / catch (Exception e)</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
